@@ -7,7 +7,6 @@
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "git.path": "/usr/local/bin/git"
+  }
 
 }
