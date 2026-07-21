@@ -6,6 +6,7 @@ const api = {
   maximize: () => ipcRenderer.send('window-maximize'),
   close: () => ipcRenderer.send('window-close'),
   startGateway: () => ipcRenderer.invoke('start-gateway'),
+  executeCommand: (command: string) => ipcRenderer.invoke('execute-command', command),
   openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   onNewWindowRequest: (callback: (url: string) => void) => {
     ipcRenderer.on('new-window-request', (_event, url) => callback(url))

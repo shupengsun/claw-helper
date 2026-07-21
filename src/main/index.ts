@@ -145,6 +145,35 @@ app.whenReady().then(() => {
     return saveConfig(config)
   })
 
+  ipcMain.handle('execute-command', async (_event, command: string) => {
+    try {
+      let terminalCommand: string
+      let args: string[]
+
+      if (process.platform === 'darwin') {
+        terminalCommand = 'osascript'
+        args = ['-e', `tell application "Terminal" to do script "${command}"`]
+      } else if (process.platform === 'win32') {
+        terminalCommand = 'cmd.exe'
+        args = ['/c', `start cmd /k "${command}"`]
+      } else {
+        terminalCommand = 'bash'
+        args = ['-c', command]
+      }
+
+      spawn(terminalCommand, args, {
+        detached: true,
+        stdio: 'ignore',
+        shell: false
+      })
+
+      return { success: true }
+    } catch (error: unknown) {
+      console.error('Failed to execute command:', error)
+      return { success: false, error: error instanceof Error ? error.message : String(error) }
+    }
+  })
+
   createWindow()
 
   app.on('activate', function () {

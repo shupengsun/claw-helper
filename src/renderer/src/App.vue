@@ -182,13 +182,24 @@ async function handleCommandAction(action: string) {
   console.log('Command action:', action)
   isCommandMenuOpen.value = false
 
-  if (action === 'start') {
-    try {
-      const result = await window.api.startGateway()
-      console.log('Start gateway result:', result)
-    } catch (error) {
-      console.error('Failed to start gateway:', error)
-    }
+  const commands: Record<string, string> = {
+    start: 'openclaw gateway start',
+    restart: 'openclaw gateway restart',
+    stop: 'openclaw gateway stop',
+    bindWechat: 'openclaw channels login --channel openclaw-weixin'
+  }
+
+  const command = commands[action]
+  if (!command) {
+    console.error('Unknown command action:', action)
+    return
+  }
+
+  try {
+    const result = await window.api.executeCommand(command)
+    console.log('Execute command result:', result)
+  } catch (error) {
+    console.error('Failed to execute command:', error)
   }
 }
 
