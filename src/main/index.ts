@@ -87,38 +87,6 @@ app.whenReady().then(() => {
     })
   })
 
-  ipcMain.handle('start-gateway', async () => {
-    return new Promise((resolve) => {
-      const command = process.platform === 'win32' ? 'openclaw' : 'openclaw'
-      const args = ['gateway', 'start']
-
-      const child = spawn(command, args, {
-        detached: true,
-        stdio: 'ignore',
-        shell: true
-      })
-
-      child.on('error', (error) => {
-        console.error('Failed to start gateway:', error)
-        resolve({ success: false, error: error.message })
-      })
-
-      child.on('exit', (code) => {
-        if (code === 0 || code === null) {
-          console.log('Gateway started successfully')
-          resolve({ success: true })
-        } else {
-          console.error('Gateway exited with code:', code)
-          resolve({ success: false, error: `Process exited with code ${code}` })
-        }
-      })
-
-      setTimeout(() => {
-        resolve({ success: true })
-      }, 2000)
-    })
-  })
-
   ipcMain.handle('open-external', async (_, url) => {
     try {
       await shell.openExternal(url)

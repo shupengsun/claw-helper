@@ -7,7 +7,7 @@ declare global {
       minimize: () => void
       maximize: () => void
       close: () => void
-      startGateway: () => Promise<{ success: boolean; error?: string }>
+      executeCommand: (command: string) => Promise<{ success: boolean; error?: string }>
       openExternal: (url: string) => Promise<{ success: boolean; error?: string }>
       onNewWindowRequest: (callback: (url: string) => void) => void
       removeNewWindowListener: () => void
