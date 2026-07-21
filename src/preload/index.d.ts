@@ -12,6 +12,8 @@ declare global {
       onNewWindowRequest: (callback: (url: string) => void) => void
       removeNewWindowListener: () => void
       getVersions: () => Promise<{ app: string; electron: string; chrome: string }>
+      getConfig: () => Promise<Record<string, unknown>>
+      saveConfig: (config: Record<string, unknown>) => Promise<{ success: boolean; error?: string }>
     }
   }
 }

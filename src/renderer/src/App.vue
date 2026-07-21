@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import Home from './components/Home.vue'
 import AboutDialog from './components/AboutDialog.vue'
+import ConfigDialog from './components/ConfigDialog.vue'
 
 interface Tab {
   id: string
@@ -20,7 +21,7 @@ const tabs = ref<Tab[]>([
   {
     id: 'main',
     title: 'OpenClaw控制台',
-    url: 'http://127.0.0.1:18789?token=xxxxxxxxx',
+    url: '',
     isLoading: true
   }
 ])
@@ -29,11 +30,20 @@ const activeTabId = ref('home')
 const isCommandMenuOpen = ref(false)
 const isSettingsMenuOpen = ref(false)
 const isAboutDialogVisible = ref(false)
+const isConfigDialogVisible = ref(false)
+const openClawUrl = ref('')
 
 const loadingTimeouts = ref<Record<string, ReturnType<typeof setTimeout> | null>>({})
 
 
 function switchTab(tabId: string) {
+  if (tabId === 'main') {
+    const mainTab = tabs.value.find(t => t.id === 'main')
+    if (!mainTab?.url || mainTab.url.trim() === '') {
+      alert('请先配置 OpenClaw URL，点击【设置】->【配置OpenClaw URL】进行配置')
+      return
+    }
+  }
   activeTabId.value = tabId
 }
 
@@ -142,6 +152,32 @@ function handleAboutClose() {
   isAboutDialogVisible.value = false
 }
 
+function handleConfigUrlClick() {
+  isSettingsMenuOpen.value = false
+  isConfigDialogVisible.value = true
+}
+
+function handleConfigUrlClose() {
+  isConfigDialogVisible.value = false
+}
+
+async function handleConfigSave(url: string) {
+  try {
+    const config = await window.api.getConfig()
+    await window.api.saveConfig({ ...config, openClawUrl: url })
+    openClawUrl.value = url
+    const mainTab = tabs.value.find(t => t.id === 'main')
+    if (mainTab) {
+      mainTab.url = url
+      mainTab.isLoading = true
+      startLoadingTimeout('main')
+    }
+    isConfigDialogVisible.value = false
+  } catch (error) {
+    console.error('Failed to save config:', error)
+  }
+}
+
 async function handleCommandAction(action: string) {
   console.log('Command action:', action)
   isCommandMenuOpen.value = false
@@ -189,7 +225,7 @@ function closeTab(tabId: string) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   tabs.value.forEach(tab => {
     if (tab.url !== 'about:blank') {
       startLoadingTimeout(tab.id)
@@ -199,6 +235,18 @@ onMounted(() => {
   window.api.onNewWindowRequest((url) => {
     createNewTab(url)
   })
+  try {
+    const config = await window.api.getConfig()
+    if (config.openClawUrl) {
+      openClawUrl.value = String(config.openClawUrl)
+      const mainTab = tabs.value.find(t => t.id === 'main')
+      if (mainTab) {
+        mainTab.url = openClawUrl.value
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load config:', error)
+  }
 })
 
 onUnmounted(() => {
@@ -270,11 +318,18 @@ onUnmounted(() => {
           设置
         </button>
         <div v-if="isSettingsMenuOpen" class="settings-menu-dropdown">
+          <button class="menu-item" @click="handleConfigUrlClick">配置OpenClaw URL</button>
           <button class="menu-item" @click="handleAboutClick">关于</button>
         </div>
       </div>
     </div>
     <AboutDialog :visible="isAboutDialogVisible" @close="handleAboutClose" />
+    <ConfigDialog 
+      :visible="isConfigDialogVisible" 
+      :model-value="openClawUrl"
+      @close="handleConfigUrlClose" 
+      @save="handleConfigSave" 
+    />
     <main class="main-content">
       <div v-for="tab in tabs" :key="tab.id" v-show="activeTabId === tab.id" class="page-container">
         <webview
@@ -513,7 +568,7 @@ html, body, #app {
   position: absolute;
   top: 100%;
   right: 0;
-  min-width: 100px;
+  min-width: 160px;
   background: #ffffff;
   border: 1px solid #e5e5e5;
   border-radius: 4px;

@@ -1,10 +1,34 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { spawn } from 'child_process'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 let mainWindow: BrowserWindow | null = null
+
+const configPath = join(app.getPath('userData'), 'config.json')
+
+function getConfig() {
+  if (existsSync(configPath)) {
+    try {
+      const content = readFileSync(configPath, 'utf-8')
+      return JSON.parse(content)
+    } catch {
+      return {}
+    }
+  }
+  return {}
+}
+
+function saveConfig(config: Record<string, unknown>) {
+  try {
+    writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
+  }
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -111,6 +135,14 @@ app.whenReady().then(() => {
       electron: process.versions.electron,
       chrome: process.versions.chrome
     }
+  })
+
+  ipcMain.handle('get-config', () => {
+    return getConfig()
+  })
+
+  ipcMain.handle('save-config', (_event, config: Record<string, unknown>) => {
+    return saveConfig(config)
   })
 
   createWindow()

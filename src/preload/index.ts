@@ -13,7 +13,9 @@ const api = {
   removeNewWindowListener: () => {
     ipcRenderer.removeAllListeners('new-window-request')
   },
-  getVersions: () => ipcRenderer.invoke('get-versions')
+  getVersions: () => ipcRenderer.invoke('get-versions'),
+  getConfig: () => ipcRenderer.invoke('get-config'),
+  saveConfig: (config: Record<string, unknown>) => ipcRenderer.invoke('save-config', config)
 }
 
 if (process.contextIsolated) {
