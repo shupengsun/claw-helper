@@ -37,11 +37,13 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',
-    titleBarOverlay: {
-      color: '#ffffff',
-      symbolColor: '#666666',
-      height: 38
-    },
+    ...(process.platform === 'darwin' ? {
+      titleBarOverlay: {
+        color: '#ffffff',
+        symbolColor: '#666666',
+        height: 38
+      }
+    } : {}),
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
