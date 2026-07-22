@@ -660,11 +660,11 @@ html, body, #app {
   -webkit-app-region: no-drag;
   display: flex;
   align-items: center;
-  margin-left: 8px;
+  margin-left: 16px;
 }
 
 .window-btn {
-  background: none;
+  background: #f0f0f0;
   border: none;
   color: #666;
   cursor: pointer;
