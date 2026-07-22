@@ -14,6 +14,7 @@ declare global {
       getVersions: () => Promise<{ app: string; electron: string; chrome: string }>
       getConfig: () => Promise<Record<string, unknown>>
       saveConfig: (config: Record<string, unknown>) => Promise<{ success: boolean; error?: string }>
+      getPlatform: () => Promise<string>
     }
   }
 }

@@ -15,7 +15,8 @@ const api = {
   },
   getVersions: () => ipcRenderer.invoke('get-versions'),
   getConfig: () => ipcRenderer.invoke('get-config'),
-  saveConfig: (config: Record<string, unknown>) => ipcRenderer.invoke('save-config', config)
+  saveConfig: (config: Record<string, unknown>) => ipcRenderer.invoke('save-config', config),
+  getPlatform: () => ipcRenderer.invoke('get-platform')
 }
 
 if (process.contextIsolated) {

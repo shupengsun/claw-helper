@@ -105,6 +105,10 @@ app.whenReady().then(() => {
     }
   })
 
+  ipcMain.handle('get-platform', () => {
+    return process.platform
+  })
+
   ipcMain.handle('get-config', () => {
     return getConfig()
   })

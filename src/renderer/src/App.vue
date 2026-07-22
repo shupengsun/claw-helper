@@ -32,6 +32,7 @@ const isSettingsMenuOpen = ref(false)
 const isAboutDialogVisible = ref(false)
 const isConfigDialogVisible = ref(false)
 const openClawUrl = ref('')
+const platform = ref('')
 
 const loadingTimeouts = ref<Record<string, ReturnType<typeof setTimeout> | null>>({})
 
@@ -161,6 +162,18 @@ function handleConfigUrlClose() {
   isConfigDialogVisible.value = false
 }
 
+async function handleMinimize() {
+  window.api.minimize()
+}
+
+function handleMaximize() {
+  window.api.maximize()
+}
+
+function handleClose() {
+  window.api.close()
+}
+
 async function handleConfigSave(url: string) {
   try {
     const config = await window.api.getConfig()
@@ -247,6 +260,7 @@ onMounted(async () => {
     createNewTab(url)
   })
   try {
+    platform.value = await window.api.getPlatform()
     const config = await window.api.getConfig()
     if (config.openClawUrl) {
       openClawUrl.value = String(config.openClawUrl)
@@ -272,7 +286,7 @@ onUnmounted(() => {
 <template>
   <div class="app-container">
     <div class="titlebar-area">
-      <div class="traffic-lights-placeholder"></div>
+      <div v-if="platform === 'darwin'" class="traffic-lights-placeholder"></div>
       <div class="nav-links">
         <button 
           v-for="tab in tabs" 
@@ -332,6 +346,24 @@ onUnmounted(() => {
           <button class="menu-item" @click="handleConfigUrlClick">配置OpenClaw URL</button>
           <button class="menu-item" @click="handleAboutClick">关于</button>
         </div>
+      </div>
+      <div v-if="platform === 'win32'" class="window-control">
+        <button class="window-btn window-min" @click="handleMinimize" title="最小化">
+          <svg width="14" height="14" viewBox="0 0 10 10" fill="none" stroke-width="1">
+            <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="window-btn window-max" @click="handleMaximize" title="最大化">
+          <svg width="14" height="14" viewBox="0 0 10 10" fill="none" stroke-width="1">
+            <rect x="1" y="1" width="8" height="8" stroke="currentColor" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="window-btn window-close" @click="handleClose" title="关闭">
+          <svg width="14" height="14" viewBox="0 0 10 10" fill="none" stroke-width="1">
+            <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor"  stroke-linecap="round"/>
+            <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor"  stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
     </div>
     <AboutDialog :visible="isAboutDialogVisible" @close="handleAboutClose" />
@@ -622,5 +654,38 @@ html, body, #app {
   height: 1px;
   background: #e5e5e5;
   margin: 4px 0;
+}
+
+.window-control {
+  -webkit-app-region: no-drag;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.window-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.window-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.window-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.window-close:hover {
+  background: #e81123;
+  color: white;
 }
 </style>
