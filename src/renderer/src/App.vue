@@ -164,6 +164,7 @@ function handleConfigUrlClose() {
 
 async function handleMinimize() {
   window.api.minimize()
+  console.log(window.api)
 }
 
 function handleMaximize() {
@@ -421,7 +422,7 @@ html, body, #app {
   background: #f0f0f0;
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  /* padding: 0 12px; */
   flex-shrink: 0;
   border-bottom: 1px solid #e5e5e5;
   -webkit-app-region: drag;
@@ -436,8 +437,7 @@ html, body, #app {
 .nav-links {
   display: flex;
   gap: 4px;
-  -webkit-app-region: no-drag;
-  margin-left: 20px;
+  /* margin-left: 20px; */
   overflow-x: auto;
   flex: 1;
 }
@@ -455,6 +455,7 @@ html, body, #app {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
+  -webkit-app-region: no-drag;
 }
 
 .nav-icon {

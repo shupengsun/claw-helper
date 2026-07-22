@@ -138,7 +138,7 @@ app.whenReady().then(() => {
       spawn(terminalCommand, args, {
         detached: true,
         stdio: 'ignore',
-        shell: false
+        shell: true
       })
 
       return { success: true }
@@ -147,6 +147,30 @@ app.whenReady().then(() => {
       return { success: false, error: error instanceof Error ? error.message : String(error) }
     }
   })
+
+  // 窗口控制事件监听
+  ipcMain.on('window-minimize', () => {
+    if (mainWindow) {
+      mainWindow.minimize()
+    }
+  })
+
+  ipcMain.on('window-maximize', () => {
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize()
+      } else {
+        mainWindow.maximize()
+      }
+    }
+  })
+
+  ipcMain.on('window-close', () => {
+    if (mainWindow) {
+      mainWindow.close()
+    }
+  })
+
 
   createWindow()
 
